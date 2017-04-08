@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 class GomokuCanvas {
     constructor() {
@@ -7,15 +7,31 @@ class GomokuCanvas {
         this.cellSize = 50;
         this.topLeftXPosistion = 20;
         this.topLeftYPosition = 20;
-        this.currentPlayer = "white";
 
-        document.getElementsByTagName('body')[0].style.margin = this.topLeftXPosistion + "px";
+        document.getElementsByTagName('body')[0].style.margin = this.topLeftXPosistion + 'px';
+        this.canvas.style.backgroundColor = '#E5D292';
 
-        this.registerClickEvent();
+        this.drawGomokuText();
+        this.drawCreditsText();
+        this.registerClickEventListener();
     }
 
-    registerClickEvent() {
-        document.addEventListener("click", (event) => {
+    drawGomokuText() {
+        this.canvasContext.font = '30px Arial';
+        this.canvasContext.fillStyle = 'black';
+        this.canvasContext.textAlign = 'center';
+        this.canvasContext.fillText('Gomoku!', canvas.width - 65, canvas.height / 2 - 10);
+    }
+
+    drawCreditsText() {
+        this.canvasContext.font = '12px Arial';
+        this.canvasContext.fillStyle = 'black';
+        this.canvasContext.textAlign = 'center';
+        this.canvasContext.fillText('Jacob Clark 2017', canvas.width - 50, canvas.height / 2 + 15);
+    }
+
+    registerClickEventListener() {
+        document.addEventListener('click', (event) => {
             let clickedXPosition = event.clientX;
             let clickedYPosition = event.clientY;
             let wasValidXClick = false;
@@ -32,6 +48,7 @@ class GomokuCanvas {
             for (let i = 0; i < 5; i++) {
                 let isInYBounds = (((clickedYPosition - i) - this.topLeftYPosition) % this.cellSize === 0);
 
+
                 if (isInYBounds) {
                     wasValidYClick = true;
                 }
@@ -39,7 +56,6 @@ class GomokuCanvas {
 
             if (wasValidXClick && wasValidYClick) {
                 this.drawFilledStone(clickedXPosition, clickedYPosition);
-                this.toggleCurrentPlayer();
             }
         });
     }
@@ -47,7 +63,7 @@ class GomokuCanvas {
     drawFilledStone(clickedXPosition, clickedYPosition) {
         this.canvasContext.beginPath();
         this.canvasContext.arc(clickedXPosition - 20, clickedYPosition - 21.2, 10, 0, 2 * Math.PI);
-        this.canvasContext.fillStyle = this.currentPlayer;
+        this.canvasContext.fillStyle = 'black';
         this.canvasContext.fill();
         this.canvasContext.stroke();
     }
@@ -68,22 +84,12 @@ class GomokuCanvas {
                 this.drawXLine(this.canvasContext, cellOffset, this.cellSize, i);
             }
 
-            for (let x = 0; x < 15; x++) {
+            for (let x = 1; x < 15; x++) {
                 this.drawYLine(this.canvasContext, 50, this.cellSize * x, i);
             }
         }
 
         this.canvasContext.stroke();
-    }
-
-    toggleCurrentPlayer() {
-        if (this.currentPlayer === 'white') {
-            this.currentPlayer = 'black';
-        } else {
-            this.currentPlayer = 'white';
-        }
-
-        document.getElementById("turnIndicator").innerText = this.currentPlayer + " turn";
     }
 }
 
