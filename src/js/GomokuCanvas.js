@@ -3,7 +3,14 @@
 class GomokuCanvas {
     constructor() {
         this.canvas = document.getElementById('canvas');
+        let boardSize = 701;
+        this.canvas.width = boardSize * 2;
+        this.canvas.height = boardSize * 2;
+        this.canvas.style.width = boardSize + "px";
+        this.canvas.style.height = boardSize + "px";
+
         this.canvasContext = canvas.getContext('2d');
+        this.canvasContext.scale(2, 2);
         this.cellSize = 50;
         this.topLeftXPosistion = 20;
         this.topLeftYPosition = 20;
@@ -12,22 +19,15 @@ class GomokuCanvas {
         this.canvas.style.backgroundColor = '#E5D292';
 
         this.drawGomokuText();
-        this.drawCreditsText();
         this.registerClickEventListener();
     }
 
     drawGomokuText() {
         this.canvasContext.font = '30px Arial';
         this.canvasContext.fillStyle = 'black';
-        this.canvasContext.textAlign = 'center';
-        this.canvasContext.fillText('Gomoku!', canvas.width - 65, canvas.height / 2 - 10);
-    }
+        this.canvasContext.textAlign = 'right';
 
-    drawCreditsText() {
-        this.canvasContext.font = '12px Arial';
-        this.canvasContext.fillStyle = 'black';
-        this.canvasContext.textAlign = 'center';
-        this.canvasContext.fillText('Jacob Clark 2017', canvas.width - 50, canvas.height / 2 + 15);
+        this.canvasContext.fillText('Gomoku!', 700, 348);
     }
 
     registerClickEventListener() {
@@ -47,7 +47,6 @@ class GomokuCanvas {
 
             for (let i = 0; i < 5; i++) {
                 let isInYBounds = (((clickedYPosition - i) - this.topLeftYPosition) % this.cellSize === 0);
-
 
                 if (isInYBounds) {
                     wasValidYClick = true;
