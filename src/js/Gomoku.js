@@ -4,7 +4,51 @@ class Gomoku {
     constructor() {
         this.canvas = document.getElementById('canvas');
         this.canvasContext = canvas.getContext('2d');
+
         this.cellSize = 50;
+        this.topLeftXPosistion = 20;
+        this.topLeftYPosition = 20;
+
+        document.getElementsByTagName('body')[0].style.margin = this.topLeftXPosistion + "px";
+
+        this.registerClickEvent();
+    }
+
+    registerClickEvent() {
+        document.addEventListener("click", (event) => {
+            let clickedXPosition = event.clientX;
+            let clickedYPosition = event.clientY;
+            let wasValidXClick = false;
+            let wasValidYClick = false;
+
+            for (let i = 0; i < 5; i++) {
+                let isInXBounds = (((clickedXPosition - i) - this.topLeftXPosistion) % this.cellSize === 0);
+
+                if (isInXBounds) {
+                    wasValidXClick = true;
+                }
+            }
+
+            for (let i = 0; i < 5; i++) {
+                let isInYBounds = (((clickedYPosition - i) - this.topLeftYPosition) % this.cellSize === 0);
+
+                if (isInYBounds) {
+                    wasValidYClick = true;
+                }
+            }
+
+            if (wasValidXClick && wasValidYClick) {
+                this.drawStone(clickedXPosition, clickedYPosition);
+            }
+        });
+    }
+
+    drawStone(clickedXPosition, clickedYPosition) {
+        this.canvasContext.beginPath();
+        this.canvasContext.arc(clickedXPosition - 20, clickedYPosition - 21.2, 10, 0, 2 * Math.PI);
+        this.canvasContext.fillStyle = "white";
+        this.canvasContext.fill();
+        this.canvasContext.stroke();
     }
 
     drawXLine(canvasContext, start, end, offset) {
@@ -18,7 +62,6 @@ class Gomoku {
     }
 
     drawBoard() {
-        // TODO: Record offsets into an array so click event can detect where to draw a player
         for (let i = 0; i < 15; i++) {
             for (let cellOffset = 0.5; cellOffset <= 700.5; cellOffset = cellOffset + 50) {
                 this.drawXLine(this.canvasContext, cellOffset, this.cellSize, i);
