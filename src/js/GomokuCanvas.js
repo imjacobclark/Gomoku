@@ -1,13 +1,13 @@
 "use strict";
 
-class Gomoku {
+class GomokuCanvas {
     constructor() {
         this.canvas = document.getElementById('canvas');
         this.canvasContext = canvas.getContext('2d');
-
         this.cellSize = 50;
         this.topLeftXPosistion = 20;
         this.topLeftYPosition = 20;
+        this.currentPlayer = "white";
 
         document.getElementsByTagName('body')[0].style.margin = this.topLeftXPosistion + "px";
 
@@ -38,15 +38,16 @@ class Gomoku {
             }
 
             if (wasValidXClick && wasValidYClick) {
-                this.drawStone(clickedXPosition, clickedYPosition);
+                this.drawFilledStone(clickedXPosition, clickedYPosition);
+                this.toggleCurrentPlayer();
             }
         });
     }
 
-    drawStone(clickedXPosition, clickedYPosition) {
+    drawFilledStone(clickedXPosition, clickedYPosition) {
         this.canvasContext.beginPath();
         this.canvasContext.arc(clickedXPosition - 20, clickedYPosition - 21.2, 10, 0, 2 * Math.PI);
-        this.canvasContext.fillStyle = "white";
+        this.canvasContext.fillStyle = this.currentPlayer;
         this.canvasContext.fill();
         this.canvasContext.stroke();
     }
@@ -74,7 +75,17 @@ class Gomoku {
 
         this.canvasContext.stroke();
     }
+
+    toggleCurrentPlayer() {
+        if (this.currentPlayer === 'white') {
+            this.currentPlayer = 'black';
+        } else {
+            this.currentPlayer = 'white';
+        }
+
+        document.getElementById("turnIndicator").innerText = this.currentPlayer + " turn";
+    }
 }
 
-let gomoku = new Gomoku();
-gomoku.drawBoard();
+let gomokuCanvas = new GomokuCanvas();
+gomokuCanvas.drawBoard();
