@@ -1,5 +1,9 @@
 'use strict';
 
+let socket = new SockJS('https://gomoku-engine.herokuapp.com/ws');
+let stompClient = Stomp.over(socket);
+stompClient.debug = null;
+
 class GomokuCanvas {
     constructor() {
         this.canvas = document.getElementById('canvas');
@@ -20,6 +24,17 @@ class GomokuCanvas {
 
         this.drawGomokuText();
         this.registerClickEventListener();
+        this.registerRedrawWebsocketSubsription();
+    }
+
+    registerRedrawWebsocketSubsription() {
+        stompClient.connect({}, function () {
+            stompClient.subscribe('/topic/games', function (message) {
+                JSON.parse(message.body).forEach(stone => {
+                    gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50);
+                });
+            });
+        });
     }
 
     drawGomokuText() {
@@ -42,6 +57,7 @@ class GomokuCanvas {
 
                 if (isInXBounds) {
                     wasValidXClick = true;
+                    clickedXPosition = ((clickedXPosition - i) - this.topLeftXPosistion);
                 }
             }
 
@@ -50,18 +66,27 @@ class GomokuCanvas {
 
                 if (isInYBounds) {
                     wasValidYClick = true;
+                    clickedYPosition = ((clickedYPosition - i) - this.topLeftXPosistion);
                 }
             }
 
             if (wasValidXClick && wasValidYClick) {
                 this.drawFilledStone(clickedXPosition, clickedYPosition);
+
+                let stompPayload = {
+                    "player": "BLACK",
+                    "column": clickedXPosition / 50,
+                    "row": clickedYPosition / 50
+                };
+
+                stompClient.send("/app/games", {}, JSON.stringify(stompPayload));
             }
         });
     }
 
     drawFilledStone(clickedXPosition, clickedYPosition) {
         this.canvasContext.beginPath();
-        this.canvasContext.arc(clickedXPosition - 20, clickedYPosition - 21.2, 10, 0, 2 * Math.PI);
+        this.canvasContext.arc(clickedXPosition, clickedYPosition, 10, 0, 2 * Math.PI);
         this.canvasContext.fillStyle = 'black';
         this.canvasContext.fill();
         this.canvasContext.stroke();
