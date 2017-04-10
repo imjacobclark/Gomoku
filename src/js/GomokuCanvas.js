@@ -71,8 +71,6 @@ class GomokuCanvas {
             }
 
             if (wasValidXClick && wasValidYClick) {
-                this.drawFilledStone(clickedXPosition, clickedYPosition);
-
                 let stompPayload = {
                     "player": "BLACK",
                     "column": clickedXPosition / 50,
