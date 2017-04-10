@@ -7,8 +7,10 @@ stompClient.debug = null;
 
 class GomokuCanvas {
     constructor() {
-        this.canvas = document.getElementById('canvas');
         let boardSize = 701;
+
+        this.canvas = document.getElementById('canvas');
+
         this.canvas.width = boardSize * 2;
         this.canvas.height = boardSize * 2;
         this.canvas.style.width = boardSize + "px";
@@ -16,6 +18,8 @@ class GomokuCanvas {
 
         this.canvasContext = canvas.getContext('2d');
         this.canvasContext.scale(2, 2);
+
+
         this.cellSize = 50;
         this.topLeftXPosistion = 20;
         this.topLeftYPosition = 20;
@@ -36,11 +40,18 @@ class GomokuCanvas {
             stompClient.subscribe('/topic/board', function (message) {
                 JSON.parse(message.body).forEach(stone => {
                     gomokuCanvas.currentPlayer = (stone.player === 'BLACK') ? 'WHITE' : 'BLACK';
-
-                    gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50, stone.player);
+                    gomokuCanvas.placeStoneOnBoard(stone);
                 });
             });
+
+            stompClient.subscribe('/topic/board/validationMessages', function (message) {
+                console.log(message);
+            });
         });
+    }
+
+    placeStoneOnBoard(stone) {
+        gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50, stone.player);
     }
 
     drawGomokuText() {
@@ -120,9 +131,9 @@ class GomokuCanvas {
         this.canvasContext.stroke();
     }
 
-    getInitialBoardState(){
-        $.get(server + '/board', function(stones) {
-            stones.forEach(stone => gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50, stone.player))
+    getInitialBoardState() {
+        $.get(server + '/board', function (stones) {
+            stones.forEach(stone => gomokuCanvas.placeStoneOnBoard(stone))
         });
     }
 }
