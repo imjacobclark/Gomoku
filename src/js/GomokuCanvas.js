@@ -1,6 +1,7 @@
 'use strict';
 
-let socket = new SockJS('https://gomoku-engine.herokuapp.com/ws');
+let server = 'https://gomoku-engine.herokuapp.com/';
+let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
 stompClient.debug = null;
 
@@ -23,13 +24,14 @@ class GomokuCanvas {
         this.canvas.style.backgroundColor = '#E5D292';
 
         this.drawGomokuText();
+        this.getInitialBoardState();
         this.registerClickEventListener();
         this.registerRedrawWebsocketSubsription();
     }
 
     registerRedrawWebsocketSubsription() {
         stompClient.connect({}, function () {
-            stompClient.subscribe('/topic/games', function (message) {
+            stompClient.subscribe('/topic/board', function (message) {
                 JSON.parse(message.body).forEach(stone => {
                     gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50);
                 });
@@ -77,7 +79,7 @@ class GomokuCanvas {
                     "row": clickedYPosition / 50
                 };
 
-                stompClient.send("/app/games", {}, JSON.stringify(stompPayload));
+                stompClient.send("/app/board", {}, JSON.stringify(stompPayload));
             }
         });
     }
@@ -112,6 +114,12 @@ class GomokuCanvas {
         }
 
         this.canvasContext.stroke();
+    }
+
+    getInitialBoardState(){
+        $.get(server + '/board', function(stones) {
+            stones.forEach(stone => gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50))
+        });
     }
 }
 
