@@ -129,8 +129,10 @@ class GomokuCanvas {
 
     getInitialBoardState() {
         $.get(server + '/pieces', function (stones) {
-            this.currentPlayer = stone.player;
-            stones.forEach(stone => gomokuCanvas.placeStoneOnBoard(stone))
+            stones.forEach(stone => {
+                gomokuCanvas.currentPlayer = stone.player;
+                gomokuCanvas.placeStoneOnBoard(stone)
+            });
         });
     }
 }
