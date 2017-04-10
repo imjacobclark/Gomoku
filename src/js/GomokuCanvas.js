@@ -37,15 +37,11 @@ class GomokuCanvas {
 
     registerRedrawWebsocketSubsription() {
         stompClient.connect({}, function () {
-            stompClient.subscribe('/topic/board', function (message) {
+            stompClient.subscribe('/topic/pieces', function (message) {
                 JSON.parse(message.body).forEach(stone => {
                     gomokuCanvas.currentPlayer = (stone.player === 'BLACK') ? 'WHITE' : 'BLACK';
                     gomokuCanvas.placeStoneOnBoard(stone);
                 });
-            });
-
-            stompClient.subscribe('/topic/board/validationMessages', function (message) {
-                console.log(message);
             });
         });
     }
@@ -94,7 +90,7 @@ class GomokuCanvas {
                     "row": clickedYPosition / 50
                 };
 
-                stompClient.send("/app/board", {}, JSON.stringify(stompPayload));
+                stompClient.send("/app/pieces", {}, JSON.stringify(stompPayload));
             }
         });
     }
@@ -132,7 +128,7 @@ class GomokuCanvas {
     }
 
     getInitialBoardState() {
-        $.get(server + '/board', function (stones) {
+        $.get(server + '/pieces', function (stones) {
             stones.forEach(stone => gomokuCanvas.placeStoneOnBoard(stone))
         });
     }
