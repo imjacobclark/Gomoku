@@ -1,6 +1,6 @@
 'use strict';
 
-let server = 'https://gomoku-engine.herokuapp.com';
+let server = 'http://gomoku-engine.herokuapp.com';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
 stompClient.debug = null;
@@ -58,7 +58,7 @@ class GomokuCanvas {
             let wasValidXClick = false;
             let wasValidYClick = false;
 
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 10; i++) {
                 let isInXBounds = (((clickedXPosition - i) - this.topLeftXPosistion) % this.cellSize === 0);
 
                 if (isInXBounds) {
@@ -67,7 +67,7 @@ class GomokuCanvas {
                 }
             }
 
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 10; i++) {
                 let isInYBounds = (((clickedYPosition - i) - this.topLeftYPosition) % this.cellSize === 0);
 
                 if (isInYBounds) {
