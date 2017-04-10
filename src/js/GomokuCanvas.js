@@ -1,6 +1,6 @@
 'use strict';
 
-let server = 'https://gomoku-engine.herokuapp.com/';
+let server = 'https://gomoku-engine.herokuapp.com';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
 stompClient.debug = null;
@@ -20,6 +20,8 @@ class GomokuCanvas {
         this.topLeftXPosistion = 20;
         this.topLeftYPosition = 20;
 
+        this.currentPlayer = 'BLACK';
+
         document.getElementsByTagName('body')[0].style.margin = this.topLeftXPosistion + 'px';
         this.canvas.style.backgroundColor = '#E5D292';
 
@@ -33,7 +35,9 @@ class GomokuCanvas {
         stompClient.connect({}, function () {
             stompClient.subscribe('/topic/board', function (message) {
                 JSON.parse(message.body).forEach(stone => {
-                    gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50);
+                    gomokuCanvas.currentPlayer = (stone.player === 'BLACK') ? 'WHITE' : 'BLACK';
+
+                    gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50, stone.player);
                 });
             });
         });
@@ -74,7 +78,7 @@ class GomokuCanvas {
 
             if (wasValidXClick && wasValidYClick) {
                 let stompPayload = {
-                    "player": "BLACK",
+                    "player": this.currentPlayer,
                     "column": clickedXPosition / 50,
                     "row": clickedYPosition / 50
                 };
@@ -84,10 +88,10 @@ class GomokuCanvas {
         });
     }
 
-    drawFilledStone(clickedXPosition, clickedYPosition) {
+    drawFilledStone(clickedXPosition, clickedYPosition, colour) {
         this.canvasContext.beginPath();
         this.canvasContext.arc(clickedXPosition, clickedYPosition, 10, 0, 2 * Math.PI);
-        this.canvasContext.fillStyle = 'black';
+        this.canvasContext.fillStyle = colour;
         this.canvasContext.fill();
         this.canvasContext.stroke();
     }
@@ -118,7 +122,7 @@ class GomokuCanvas {
 
     getInitialBoardState(){
         $.get(server + '/board', function(stones) {
-            stones.forEach(stone => gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50))
+            stones.forEach(stone => gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50, stone.player))
         });
     }
 }
