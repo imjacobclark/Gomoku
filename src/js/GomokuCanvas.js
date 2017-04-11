@@ -13,8 +13,8 @@ class GomokuCanvas {
 
         this.canvas.width = boardSize * 2;
         this.canvas.height = boardSize * 2;
-        this.canvas.style.width = boardSize + "px";
-        this.canvas.style.height = boardSize + "px";
+        this.canvas.style.width = boardSize + 'px';
+        this.canvas.style.height = boardSize + 'px';
 
         this.canvasContext = canvas.getContext('2d');
         this.canvasContext.scale(2, 2);
@@ -23,8 +23,6 @@ class GomokuCanvas {
         this.cellSize = 50;
         this.topLeftXPosistion = 20;
         this.topLeftYPosition = 20;
-
-        this.currentPlayer = 'BLACK';
 
         document.getElementsByTagName('body')[0].style.margin = this.topLeftXPosistion + 'px';
         this.canvas.style.backgroundColor = '#E5D292';
@@ -39,7 +37,6 @@ class GomokuCanvas {
         stompClient.connect({}, function () {
             stompClient.subscribe('/topic/pieces', function (message) {
                 JSON.parse(message.body).forEach(stone => {
-                    gomokuCanvas.currentPlayer = (stone.player === 'BLACK') ? 'WHITE' : 'BLACK';
                     gomokuCanvas.placeStoneOnBoard(stone);
                 });
             });
@@ -85,12 +82,12 @@ class GomokuCanvas {
 
             if (wasValidXClick && wasValidYClick) {
                 let stompPayload = {
-                    "player": this.currentPlayer,
-                    "column": clickedXPosition / 50,
-                    "row": clickedYPosition / 50
+                    'player': 'BLACK',
+                    'column': clickedXPosition / 50,
+                    'row': clickedYPosition / 50
                 };
 
-                stompClient.send("/app/pieces", {}, JSON.stringify(stompPayload));
+                stompClient.send('/app/pieces', {}, JSON.stringify(stompPayload));
             }
         });
     }
@@ -130,7 +127,6 @@ class GomokuCanvas {
     getInitialBoardState() {
         $.get(server + '/pieces', function (stones) {
             stones.forEach(stone => {
-                gomokuCanvas.currentPlayer = stone.player;
                 gomokuCanvas.placeStoneOnBoard(stone)
             });
         });
