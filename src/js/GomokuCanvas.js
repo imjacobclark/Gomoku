@@ -3,6 +3,8 @@
 let server = 'https://gomoku-engine.herokuapp.com';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
+let playerColour = 'BLACK';
+
 stompClient.debug = null;
 
 class GomokuCanvas {
@@ -82,7 +84,7 @@ class GomokuCanvas {
 
             if (wasValidXClick && wasValidYClick) {
                 let stompPayload = {
-                    'player': 'BLACK',
+                    'player': playerColour,
                     'column': clickedXPosition / 50,
                     'row': clickedYPosition / 50
                 };
