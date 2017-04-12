@@ -1,6 +1,6 @@
 'use strict';
 
-let server = 'http://localhost:8080';
+let server = 'https://gomoku-engine.herokuapp.com';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
 let uuid = null;
