@@ -1,9 +1,10 @@
 'use strict';
 
-let server = 'https://gomoku-engine.herokuapp.com';
+let server = 'http://localhost:8080';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
-let playerColour = 'BLACK';
+let uuid = null;
+let pebbleType = null;
 
 stompClient.debug = null;
 
@@ -37,7 +38,7 @@ class GomokuCanvas {
 
     registerRedrawWebsocketSubsription() {
         stompClient.connect({}, function () {
-            stompClient.subscribe('/topic/pieces', function (message) {
+            stompClient.subscribe('/topic/games/pieces', function (message) {
                 JSON.parse(message.body).forEach(stone => {
                     gomokuCanvas.placeStoneOnBoard(stone);
                 });
@@ -84,12 +85,14 @@ class GomokuCanvas {
 
             if (wasValidXClick && wasValidYClick) {
                 let stompPayload = {
-                    'player': playerColour,
+                    'pebbleType': pebbleType,
                     'column': clickedXPosition / 50,
                     'row': clickedYPosition / 50
                 };
 
-                stompClient.send('/app/pieces', {}, JSON.stringify(stompPayload));
+                console.log(stompPayload);
+
+                stompClient.send('/app/games/' + uuid + '/pieces', {}, JSON.stringify(stompPayload));
             }
         });
     }
@@ -127,10 +130,9 @@ class GomokuCanvas {
     }
 
     getInitialBoardState() {
-        $.get(server + '/pieces', function (stones) {
-            stones.forEach(stone => {
-                gomokuCanvas.placeStoneOnBoard(stone)
-            });
+        $.post(server + '/games', function( data ) {
+            pebbleType = data.players[0].pebbleType;
+            uuid = data.id;
         });
     }
 }
