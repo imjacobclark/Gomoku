@@ -3,7 +3,7 @@
 let server = 'https://gomoku-engine.herokuapp.com';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
-let uuid = null;
+let gameUUID = null;
 let pebbleType = null;
 
 stompClient.debug = null;
@@ -90,9 +90,7 @@ class GomokuCanvas {
                     'row': clickedYPosition / 50
                 };
 
-                console.log(stompPayload);
-
-                stompClient.send('/app/games/' + uuid + '/pieces', {}, JSON.stringify(stompPayload));
+                stompClient.send('/app/games/' + gameUUID + '/pieces', {}, JSON.stringify(stompPayload));
             }
         });
     }
@@ -132,7 +130,7 @@ class GomokuCanvas {
     getInitialBoardState() {
         $.post(server + '/games', function( data ) {
             pebbleType = data.players[0].pebbleType;
-            uuid = data.id;
+            gameUUID = data.id;
         });
     }
 }
