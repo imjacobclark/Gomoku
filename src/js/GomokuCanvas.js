@@ -1,10 +1,11 @@
 'use strict';
 
-let server = 'https://gomoku-engine.herokuapp.com';
+let server = 'http://localhost:8080';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
+
 let gameUUID = null;
-let pebbleType = null;
+let playerUUID = null;
 
 stompClient.debug = null;
 
@@ -47,7 +48,7 @@ class GomokuCanvas {
     }
 
     placeStoneOnBoard(stone) {
-        gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50, stone.player);
+        gomokuCanvas.drawFilledStone(stone.column * 50, stone.row * 50, stone.pebbleType);
     }
 
     drawGomokuText() {
@@ -85,7 +86,7 @@ class GomokuCanvas {
 
             if (wasValidXClick && wasValidYClick) {
                 let stompPayload = {
-                    'pebbleType': pebbleType,
+                    'playerUuid': playerUUID,
                     'column': clickedXPosition / 50,
                     'row': clickedYPosition / 50
                 };
@@ -96,6 +97,8 @@ class GomokuCanvas {
     }
 
     drawFilledStone(clickedXPosition, clickedYPosition, colour) {
+        console.log(clickedYPosition)
+        console.log(clickedXPosition)
         this.canvasContext.beginPath();
         this.canvasContext.arc(clickedXPosition, clickedYPosition, 10, 0, 2 * Math.PI);
         this.canvasContext.fillStyle = colour;
@@ -129,8 +132,8 @@ class GomokuCanvas {
 
     getInitialBoardState() {
         $.post(server + '/games', function( data ) {
-            pebbleType = data.players[0].pebbleType;
-            gameUUID = data.id;
+            gameUUID = data.uuid;
+            playerUUID = data.players[0].uuid;
         });
     }
 }
