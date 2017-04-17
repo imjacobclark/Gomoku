@@ -1,11 +1,13 @@
 'use strict';
 
-let server = 'http://gomoku-engine.jacobclark.xyz';
+let server = 'http://localhost:8080';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
 
 let gameUUID = null;
 let playerUUID = null;
+
+let disableMoves = false;
 
 stompClient.debug = null;
 
@@ -60,8 +62,9 @@ class GomokuCanvas {
     }
 
     addPlayerToGame() {
-        $.post(server + '/games/' + gameUUID + '/players', function (data) {
+        $.post(server + '/games/' + gameUUID + '/players', data => {
             playerUUID = data.uuid;
+            gomokuCanvas.writeGameInformationToScreen();
             $.get(server + '/games/' + gameUUID, (data) => {
                 data.board.pieces.forEach(stone => {
                     gomokuCanvas.placeStoneOnBoard(stone);
@@ -71,19 +74,31 @@ class GomokuCanvas {
     }
 
     registerRedrawWebsocketSubsription() {
-        stompClient.connect({}, function () {
-            gomokuCanvas.setGameStatusAsConnected();
-            stompClient.subscribe('/topic/games/pieces', function (message) {
-                JSON.parse(message.body).forEach(stone => {
-                    gomokuCanvas.placeStoneOnBoard(stone);
-                });
+        stompClient.connect({}, () => {
+            stompClient.subscribe('/topic/games/pieces', message => {
+                var message = JSON.parse(message.body);
+
+                if (message.uuid === gameUUID) {
+                    message.board.pieces.forEach(stone => {
+                        gomokuCanvas.placeStoneOnBoard(stone);
+                    });
+                }
+            });
+
+            stompClient.subscribe('/topic/games/events/win', message => {
+                var message = JSON.parse(message.body);
+
+                if (message.uuid === gameUUID) {
+                    alert("Game has been won!");
+
+                    message.board.pieces.forEach(stone => {
+                        gomokuCanvas.placeStoneOnBoard(stone);
+                    });
+
+                    disableMoves = true;
+                }
             });
         });
-    }
-
-    setGameStatusAsConnected() {
-        document.getElementById("game-status").innerText = "Connected";
-        document.getElementById("game-status").style.background = "green";
     }
 
     placeStoneOnBoard(stone) {
@@ -130,7 +145,7 @@ class GomokuCanvas {
                     'row': clickedYPosition / 50
                 };
 
-                stompClient.send('/app/games/' + gameUUID + '/pieces', {}, JSON.stringify(stompPayload));
+                if (!disableMoves) stompClient.send('/app/games/' + gameUUID + '/pieces', {}, JSON.stringify(stompPayload));
             }
         });
     }
@@ -168,7 +183,7 @@ class GomokuCanvas {
     }
 
     getInitialBoardState() {
-        $.post(server + '/games', function (data) {
+        $.post(server + '/games', data => {
             gameUUID = data.uuid;
             playerUUID = data.players[0].uuid;
             gomokuCanvas.writeGameInformationToScreen();
@@ -176,7 +191,8 @@ class GomokuCanvas {
     }
 
     writeGameInformationToScreen() {
-        document.getElementById("game-info").innerHTML = "Game ID: " + gameUUID + "<br/>Player ID: " + playerUUID;
+        let gameStatus = (!disableMoves) ? "in play" : "finished";
+        document.getElementById("game-info").innerHTML = "Game ID: " + gameUUID + "<br/>Player ID: " + playerUUID + "<br/>Game status: " + gameStatus + ".";
     }
 }
 
