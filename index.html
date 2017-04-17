@@ -5,11 +5,39 @@
     <title>Gomoku</title>
 </head>
 <body>
-    <canvas width="701px" height="701px" id="canvas"></canvas>
+    <div id="game-controls">
+        <h1>Welcome to Gomoku!</h1>
+
+        <h3>Game rules:</h3>
+
+        <ul>
+            <li>2 Players - black vs white</li>
+            <li>Each player takes it in turn to place a stone on the board</li>
+            <li>First player to reach 5+ unbroken stones in a row horizontally, vertically, or diagonally wins</li>
+        </ul>
+
+        <button id="new-game">New Game!</button>
+        <button id="join-game">Join Game!</button>
+
+        <div id="join-game-controls" style="display: none;">
+            <br/>
+            <strong>You will need the other players game ID in order to join a game</strong><br/>
+            <input type="text" placeholder="eg: e63f57a1-bb2f-4fba-8b5d-a42f4ea360ff" id="game-to-join-uuid"> <button id="game-to-join-go">Go</button>
+        </div>
+
+        <p>This Gomoku game is totally free to play, its code is open source and all game data is open.</p>
+        <p>The backend board game engine is on GitHub <a href="https://github.com/imjacobclark/BoardGameEngine">BoardGameEngine</a></p>
+        <p>The frontend HTML5/Canvas Gomoku board is also on GitHub <a href="https://github.com/imjacobclark/Gomoku">BoardGameEngine</a></p>
+    </div>
+
+    <canvas width="701px" height="701px" id="canvas" style="display: none;"></canvas>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/sockjs/1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
 
     <script src="src/js/GomokuCanvas.js"></script>
+
+    <div id="game-info"></div>
 </body>
 </html>

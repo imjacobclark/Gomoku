@@ -1,6 +1,6 @@
 'use strict';
 
-let server = 'https://gomoku-engine.herokuapp.com';
+let server = 'http://localhost:8080';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
 
@@ -32,9 +32,38 @@ class GomokuCanvas {
         this.canvas.style.backgroundColor = '#E5D292';
 
         this.drawGomokuText();
-        this.getInitialBoardState();
         this.registerClickEventListener();
         this.registerRedrawWebsocketSubsription();
+        this.registerNewGameButtonClickEvent();
+        this.registerJoinGameButtonClickEvent();
+    }
+
+    registerNewGameButtonClickEvent() {
+        document.getElementById("new-game").addEventListener('click', () => {
+            document.getElementById("game-controls").style.display = 'none';
+            canvas.style.display = 'block';
+            this.getInitialBoardState();
+        });
+    }
+
+    registerJoinGameButtonClickEvent() {
+        document.getElementById("join-game").addEventListener('click', () => {
+            document.getElementById("join-game-controls").style.display = 'block';
+
+            document.getElementById("game-to-join-go").addEventListener('click', () => {
+                document.getElementById("game-controls").style.display = 'none';
+                canvas.style.display = 'block';
+                gameUUID = document.getElementById("game-to-join-uuid").value;
+                this.addPlayerToGame();
+            });
+        });
+    }
+
+    addPlayerToGame() {
+        $.post(server + '/games/' + gameUUID + '/players', function (data) {
+            playerUUID = data.uuid;
+            document.getElementById("game-info").innerHTML = "Game ID: " + gameUUID + "<br/>Player ID: " + playerUUID;
+        });
     }
 
     registerRedrawWebsocketSubsription() {
@@ -97,8 +126,6 @@ class GomokuCanvas {
     }
 
     drawFilledStone(clickedXPosition, clickedYPosition, colour) {
-        console.log(clickedYPosition)
-        console.log(clickedXPosition)
         this.canvasContext.beginPath();
         this.canvasContext.arc(clickedXPosition, clickedYPosition, 10, 0, 2 * Math.PI);
         this.canvasContext.fillStyle = colour;
@@ -134,6 +161,7 @@ class GomokuCanvas {
         $.post(server + '/games', function( data ) {
             gameUUID = data.uuid;
             playerUUID = data.players[0].uuid;
+            document.getElementById("game-info").innerHTML = "Game ID: " + gameUUID + "<br/>Player ID: " + playerUUID;
         });
     }
 }
