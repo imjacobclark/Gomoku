@@ -1,6 +1,6 @@
 'use strict';
 
-let server = 'https://gomoku-engine.herokuapp.com';
+let server = 'http://gomoku-engine.jacobclark.xyz';
 let socket = new SockJS(server + '/ws');
 let stompClient = Stomp.over(socket);
 
@@ -62,18 +62,28 @@ class GomokuCanvas {
     addPlayerToGame() {
         $.post(server + '/games/' + gameUUID + '/players', function (data) {
             playerUUID = data.uuid;
-            document.getElementById("game-info").innerHTML = "Game ID: " + gameUUID + "<br/>Player ID: " + playerUUID;
+            $.get(server + '/games/' + gameUUID, (data) => {
+                data.board.pieces.forEach(stone => {
+                    gomokuCanvas.placeStoneOnBoard(stone);
+                });
+            });
         });
     }
 
     registerRedrawWebsocketSubsription() {
         stompClient.connect({}, function () {
+            gomokuCanvas.setGameStatusAsConnected();
             stompClient.subscribe('/topic/games/pieces', function (message) {
                 JSON.parse(message.body).forEach(stone => {
                     gomokuCanvas.placeStoneOnBoard(stone);
                 });
             });
         });
+    }
+
+    setGameStatusAsConnected() {
+        document.getElementById("game-status").innerText = "Connected";
+        document.getElementById("game-status").style.background = "green";
     }
 
     placeStoneOnBoard(stone) {
@@ -158,11 +168,15 @@ class GomokuCanvas {
     }
 
     getInitialBoardState() {
-        $.post(server + '/games', function( data ) {
+        $.post(server + '/games', function (data) {
             gameUUID = data.uuid;
             playerUUID = data.players[0].uuid;
-            document.getElementById("game-info").innerHTML = "Game ID: " + gameUUID + "<br/>Player ID: " + playerUUID;
+            gomokuCanvas.writeGameInformationToScreen();
         });
+    }
+
+    writeGameInformationToScreen() {
+        document.getElementById("game-info").innerHTML = "Game ID: " + gameUUID + "<br/>Player ID: " + playerUUID;
     }
 }
 
