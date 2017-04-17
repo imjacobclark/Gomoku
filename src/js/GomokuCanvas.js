@@ -95,7 +95,7 @@ class GomokuCanvas {
             let wasValidXClick = false;
             let wasValidYClick = false;
 
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 15; i++) {
                 let isInXBounds = (((clickedXPosition - i) - this.topLeftXPosistion) % this.cellSize === 0);
 
                 if (isInXBounds) {
@@ -104,7 +104,7 @@ class GomokuCanvas {
                 }
             }
 
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 15; i++) {
                 let isInYBounds = (((clickedYPosition - i) - this.topLeftYPosition) % this.cellSize === 0);
 
                 if (isInYBounds) {
